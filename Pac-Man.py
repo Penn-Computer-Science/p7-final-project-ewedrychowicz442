@@ -1,32 +1,41 @@
+from board import board
 import pygame
 
 pygame.init()
 
-maze = [
-    [1, 0, 0, 0, 0, 0, ],
-    []
-]
+WIDTH = 900
+HEIGHT = 950
+screen = pygame.display.set_mode([WIDTH, HEIGHT])
+timer = pygame.time.Clock()
+font = pygame.font.Font('freesansbold.ttf', 20)
+color = 'blue'
 
-#variables
-TILE_SIZE = 32
-GAME_WIDTH = 512
-GAME_HEIGHT = 512
-ROWS = len(maze)
-COLS = len(maze[0])
+def draw_board():
+    num1 = ((HEIGHT - 50)//32) 
+    num2 = (WIDTH//30)
+    for i in range(len(board)): #iterate through each row of the board list
+        for j in range(len(board[i])): #iterate through each value in each row
+            if board[i][j] == 1:
+                pygame.draw.circle(screen, 'white', (j * num2 + (0.5 * num2), i * num1 + (0.5 * num1)), 4) #(x,y) is at the center of the tile, radius 4
+            if board[i][j] == 2:
+                pygame.draw.circle(screen, 'white', (j * num2 + (0.5 * num2), i * num1 + (0.5 * num1)), 10) #(x,y) is at the center of the tile, radius 10
+            if board[i][j] == 3:
+                pygame.draw.line(screen, color, (j * num2 + (0.5 * num2), i * num1), (j * num2 + (0.5 * num2), i * num1 + num1), 3) #starting (x,y) is at top middle of tile, ending (x,y) is at same x but bottom of tile, thickness of 3
+            if board[i][j] == 4:
+                pygame.draw.line(screen, color, (j * num2 , i * num1 + (0.5 * num2)), (j * num2 + num2, i * num1 + (0.5 * num1)), 3) #starting (x,y) is at top middle of tile, ending (x,y) is at same x but bottom of tile, thickness of 3
 
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Pac-Man Maze")
+run = True
+while run:
+    timer.tick(60) #how fast the game runs
+    screen.fill('black')
+    draw_board()
 
-'''
-1 = path_tile
-2 = wall
-'''
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT: #if you exit out the game
+            run = False
 
-def create_maze():
-    for row in range(ROWS):
-        for column in range(COLS):
-            x = column * TILE_SIZE
-            y = row * TILE_SIZE
-            if maze[row][column] == 1:
-                pygame.draw.rect(screen, ("blue"), (x, y, TILE_SIZE, TILE_SIZE))
-                
+    pygame.display.flip() #draws it every iteration
+pygame.quit()
+
+
+
