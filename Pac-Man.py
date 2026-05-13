@@ -11,6 +11,8 @@ timer = pygame.time.Clock()
 font = pygame.font.Font('freesansbold.ttf', 20)
 color = 'blue'
 PI = math.pi
+direction = 0
+counter = 0
 
 def draw_board():
     num1 = ((HEIGHT - 50)//32) 
@@ -19,28 +21,44 @@ def draw_board():
         for j in range(len(board[i])): #iterate through each value in each row
             if board[i][j] == 1:
                 pygame.draw.circle(screen, 'white', (j * num2 + (0.5 * num2), i * num1 + (0.5 * num1)), 4) #(x,y) is at the center of the tile, radius 4
-            if board[i][j] == 2:
+            elif board[i][j] == 2:
                 pygame.draw.circle(screen, 'white', (j * num2 + (0.5 * num2), i * num1 + (0.5 * num1)), 10) #(x,y) is at the center of the tile, radius 10
-            if board[i][j] == 3:
+            elif board[i][j] == 3:
                 pygame.draw.line(screen, color, (j * num2 + (0.5 * num2), i * num1), (j * num2 + (0.5 * num2), i * num1 + num1), 3) #starting (x,y) is at top middle of tile, ending (x,y) is at same x but bottom of tile, thickness of 3
-            if board[i][j] == 4:
+            elif board[i][j] == 4:
                 pygame.draw.line(screen, color, (j * num2 , i * num1 + (0.5 * num2)), (j * num2 + num2, i * num1 + (0.5 * num1)), 3) #starting (x,y) is at side of tile, ending (x,y) is at same y but on the opposite side, thickness of 3
-            if board[i][j] == 5:
+            elif board[i][j] == 5:
                 pygame.draw.arc(screen, color, [(j * num2 - (num2 * 0.4)) - 2, (i * num1 + (0.5 * num1)), num2, num1], 0, PI/2, 3)
-            if board[i][j] == 6:
+            elif board[i][j] == 6:
                 pygame.draw.arc(screen, color, [(j * num2 + (num2 * 0.5)), (i * num1 + (0.5 * num1)), num2, num1], PI/2, PI, 3)
-            if board[i][j] == 7:
+            elif board[i][j] == 7:
                 pygame.draw.arc(screen, color, [(j * num2 + (num2 * 0.5)), (i * num1 - (0.4 * num1)), num2, num1], PI, 3*PI/2, 3)
-            if board[i][j] == 8:
+            elif board[i][j] == 8:
                 pygame.draw.arc(screen, color, [(j * num2 - (num2 * 0.4)) - 2, (i * num1 - (0.4 * num1)), num2, num1], 3*PI/2, 2*PI, 3)
-            if board[i][j] == 9:
+            elif board[i][j] == 9:
                 pygame.draw.line(screen, 'white', (j * num2 , i * num1 + (0.5 * num2)), (j * num2 + num2, i * num1 + (0.5 * num1)), 3) #starting (x,y) is at side of tile, ending (x,y) is at same y but on the opposite side, thickness of 3
+
+player_x = 450
+player_y = 663
+
+def draw_player():
+    player_image = (pygame.transform.scale(pygame.image.load(f'player_image.png'), (45, 45)))
+    #RIGHT = 0, LEFT = 1, UP = 2, DOWN = 3
+    if direction == 0:
+        screen.blit(player_image[counter // 5], (player_x, player_y))
+    elif direction == 1:
+        screen.blit(pygame. transform.flip(player_image[counter // 5], True, False), (player_x, player_y))
+    elif direction == 2:
+        screen.blit(pygame.transform.rotate(player_image[counter // 5], 90), (player_x, player_y))
+    elif direction == 3:
+        screen.blit(pygame.transform.rotate(player_image[counter // 5], 270), (player_x, player_y))
 
 run = True
 while run:
     timer.tick(60) #how fast the game runs
     screen.fill('black')
     draw_board()
+    draw_player()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT: #if you exit out the game
