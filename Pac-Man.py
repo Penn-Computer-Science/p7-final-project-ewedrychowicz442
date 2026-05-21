@@ -95,7 +95,7 @@ def check_position(center_x, center_y):
             if 12 <= center_y % num1 <= 18:
                 if board[center_y  // num1][(center_x - num3)// num2] < 3:
                     turns[1] = True
-                if board[center_y // num1][center_x + num3 // num2] < 3:
+                if board[center_y // num1][(center_x + num3) // num2] < 3:
                     turns[0] = True
 
     else:
