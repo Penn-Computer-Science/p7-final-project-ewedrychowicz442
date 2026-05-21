@@ -12,6 +12,7 @@ font = pygame.font.Font('freesansbold.ttf', 20)
 color = 'blue'
 PI = math.pi
 direction = 0
+direction_command = 0
 player_speed = 2
 
 
@@ -40,10 +41,10 @@ def draw_board():
                 pygame.draw.line(screen, 'white', (j * num2 , i * num1 + (0.5 * num2)), (j * num2 + num2, i * num1 + (0.5 * num1)), 3) #starting (x,y) is at side of tile, ending (x,y) is at same y but on the opposite side, thickness of 3
 
 player_x = 450
-player_y = 663
+player_y = 660
 
 def draw_player():
-    player_image = (pygame.transform.scale(pygame.image.load(f'player_image.png'), (45, 45))) #load the player image and scale it to 45 by 45
+    player_image = (pygame.transform.scale(pygame.image.load(f'player_image.png'), (60, 60))) #load the player image and scale it to 45 by 45
     #RIGHT = 0, LEFT = 1, UP = 2, DOWN = 3
     if direction == 0:
         screen.blit(player_image, (player_x, player_y)) #starting position
@@ -58,7 +59,7 @@ def check_position(center_x, center_y):
     turns = [False, False, False, False]
     num1 = ((HEIGHT - 50)//32) 
     num2 = (WIDTH//30)
-    num3 = 15
+    num3 = 14
     #check collisions based on center x and y of player
     if center_x // 30 < 29:
         if direction == 0:
@@ -68,10 +69,10 @@ def check_position(center_x, center_y):
             if board[center_y // num1][(center_x + num3) // num2] < 3:
                 turns[0] = True
         if direction == 2:
-            if board[center_y + num3 // num1][center_x // num2] < 3:
+            if board[(center_y + num3) // num1][center_x // num2] < 3:
                 turns[3] = True
         if direction == 3:
-            if board[center_y - num3 // num1][center_x // num2] < 3:
+            if board[(center_y - num3) // num1][center_x // num2] < 3:
                 turns[2] = True
 
         if direction == 2 or direction == 3:
@@ -83,7 +84,7 @@ def check_position(center_x, center_y):
             if 12 <= center_y % num1 <= 18:
                 if board[center_y  // num1][(center_x - num2)// num2] < 3:
                     turns[1] = True
-                if board[center_y // num1][center_x + num2 // num2] < 3:
+                if board[center_y // num1][(center_x + num2) // num2] < 3:
                     turns[0] = True
 
         if direction == 0 or direction == 1:
@@ -122,8 +123,8 @@ while run:
     screen.fill('black')
     draw_board()
     draw_player()
-    center_x = player_x + 23
-    center_y = player_y + 24
+    center_x = player_x + 30
+    center_y = player_y + 30
     valid_turns = check_position(center_x, center_y)
     player_x, player_y = move_player(player_x, player_y)
 
@@ -132,13 +133,25 @@ while run:
             run = False
         if event.type == pygame.KEYDOWN: #handles the moving of pac man
             if event.key == pygame.K_RIGHT:
-                direction = 0
+                direction_command = 0
             if event.key == pygame.K_LEFT:
-                direction = 1
+                direction_command = 1
             if event.key == pygame.K_UP:
-                direction = 2
+                direction_command = 2
             if event.key == pygame.K_DOWN:
-                direction = 3
+                direction_command = 3
+    if event.type == pygame.KEYUP:
+        if event.key == pygame.K_RIGHT and direction_command == 0:
+            direction_command = direction
+        if event.key == pygame.K_LEFT and direction_command == 1:
+            direction_command = direction
+        if event.key == pygame.K_UP and direction_command == 2:
+            direction_command = direction
+        if event.key == pygame.K_DOWN and direction_command == 3:
+            direction_command = direction
+    for i in range(4):
+        if direction_command == i and valid_turns[i]:
+            direction = i
 
     if player_x > 900:
         player_x = -47
