@@ -11,9 +11,47 @@ timer = pygame.time.Clock()
 font = pygame.font.Font('freesansbold.ttf', 20)
 color = 'blue'
 PI = math.pi
+player_x = 450
+player_y = 663
+ghost1_img = (pygame.transform.scale(pygame.image.load(f'BlueGhost_img.png'), (50, 50)))
+ghost2_img = (pygame.transform.scale(pygame.image.load(f'PurpleGhost_img.png'), (50, 50)))
+ghost3_img = (pygame.transform.scale(pygame.image.load(f'RedGhost_img.png'), (50, 50)))
+ghost1_x = 56
+ghost1_y = 58
+ghost1_direction = 0
+ghost2_x = 440
+ghost2_y = 388
+ghost2_direction = 2
+ghost3_x = 440
+ghost3_y = 438
+ghost3_direction = 2
+direction_command = 0
 direction = 0
 player_speed = 2
+score = 0
+ghost_targets = [(player_x, player_y), (player_x, player_y), (player_x, player_y)]
+ghost1_box =  False
+ghost2_box = False
+ghost3_box = False
+ghost_speed = 2
+moving = False
+startup_counter = 0
+lives = 3
 
+def draw_random():
+    score_text = font.render(f'Score: {score}', True, 'white')
+    screen.blit(score_text, (10, 920))
+    for i in range(lives):
+        screen.blit(pygame.transform.scale(pygame.image.load(f'player_image.png'), (35, 35)), (650 + i * 40, 915))
+
+def check_collisions(score):
+    num1 = (HEIGHT - 50) // 32
+    num2 = WIDTH // 30
+    if 0 < player_x < 870:
+        if board[center_y //num1][center_x // num2] == 1:
+            board[center_y //num1][center_x // num2] = 0
+            score += 10
+    return score
 
 def draw_board():
     num1 = ((HEIGHT - 50)//32) 
@@ -39,11 +77,8 @@ def draw_board():
             elif board[i][j] == 9:
                 pygame.draw.line(screen, 'white', (j * num2 , i * num1 + (0.5 * num2)), (j * num2 + num2, i * num1 + (0.5 * num1)), 3) #starting (x,y) is at side of tile, ending (x,y) is at same y but on the opposite side, thickness of 3
 
-player_x = 450
-player_y = 663
-
 def draw_player():
-    player_image = (pygame.transform.scale(pygame.image.load(f'player_image.png'), (45, 45))) #load the player image and scale it to 45 by 45
+    player_image = (pygame.transform.scale(pygame.image.load(f'player_image.png'), (50, 50))) #load the player image and scale it to 45 by 45
     #RIGHT = 0, LEFT = 1, UP = 2, DOWN = 3
     if direction == 0:
         screen.blit(player_image, (player_x, player_y)) #starting position
@@ -68,10 +103,10 @@ def check_position(center_x, center_y):
             if board[center_y // num1][(center_x + num3) // num2] < 3:
                 turns[0] = True
         if direction == 2:
-            if board[center_y + num3 // num1][center_x // num2] < 3:
+            if board[(center_y + num3) // num1][center_x // num2] < 3:
                 turns[3] = True
         if direction == 3:
-            if board[center_y - num3 // num1][center_x // num2] < 3:
+            if board[(center_y - num3) // num1][center_x // num2] < 3:
                 turns[2] = True
 
         if direction == 2 or direction == 3:
@@ -83,7 +118,7 @@ def check_position(center_x, center_y):
             if 12 <= center_y % num1 <= 18:
                 if board[center_y  // num1][(center_x - num2)// num2] < 3:
                     turns[1] = True
-                if board[center_y // num1][center_x + num2 // num2] < 3:
+                if board[center_y // num1][(center_x + num2) // num2] < 3:
                     turns[0] = True
 
         if direction == 0 or direction == 1:
@@ -95,7 +130,7 @@ def check_position(center_x, center_y):
             if 12 <= center_y % num1 <= 18:
                 if board[center_y  // num1][(center_x - num3)// num2] < 3:
                     turns[1] = True
-                if board[center_y // num1][center_x + num3 // num2] < 3:
+                if board[center_y // num1][(center_x + num3) // num2] < 3:
                     turns[0] = True
 
     else:
@@ -119,26 +154,56 @@ def move_player(player_x, player_y):
 run = True
 while run:
     timer.tick(60) #how fast the game runs
+    if startup_counter < 180:
+        moving = False
+        startup_counter += 1
+    else:
+        moving = True
     screen.fill('black')
     draw_board()
     draw_player()
-    center_x = player_x + 23
-    center_y = player_y + 24
+    draw_random()
+    center_x = player_x + 25
+    center_y = player_y + 25
     valid_turns = check_position(center_x, center_y)
-    player_x, player_y = move_player(player_x, player_y)
+    if moving:
+        player_x, player_y = move_player(player_x, player_y)
+    score = check_collisions(score)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT: #if you exit out the game
             run = False
         if event.type == pygame.KEYDOWN: #handles the moving of pac man
             if event.key == pygame.K_RIGHT:
-                direction = 0
+                direction_command = 0
             if event.key == pygame.K_LEFT:
-                direction = 1
+                direction_command = 1
             if event.key == pygame.K_UP:
-                direction = 2
+                direction_command = 2
             if event.key == pygame.K_DOWN:
-                direction = 3
+                direction_command = 3
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_RIGHT and direction_command == 0:
+                direction_command = direction
+            if event.key == pygame.K_LEFT and direction_command == 1:
+                direction_command = direction
+            if event.key == pygame.K_UP and direction_command == 2:
+                direction_command = direction
+            if event.key == pygame.K_DOWN and direction_command == 3:
+                direction_command = direction
+        
+    if direction_command == 0 and valid_turns[0]:
+        direction = 0
+    if direction_command == 1 and valid_turns[1]:
+        direction = 1
+    if direction_command == 2 and valid_turns[2]:
+        direction = 2
+    if direction_command == 3 and valid_turns[3]:
+        direction = 3
+    
+    for i in range(4):
+        if direction_command == i and valid_turns[i]:
+            direction = i
 
     if player_x > 900:
         player_x = -47
