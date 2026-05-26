@@ -41,17 +41,17 @@ lives = 3
 
 def draw_random():
     score_text = font.render(f'Score: {score}', True, 'white')
-    screen.blit(score_text, (10, 920))
-    for i in range(lives):
+    screen.blit(score_text, (10, 920)) #display the score
+    for i in range(lives): #place three small pacman in bottom right to count lives
         screen.blit(pygame.transform.scale(pygame.image.load(f'player_image.png'), (35, 35)), (650 + i * 40, 915))
 
 def check_collisions(score):
     num1 = (HEIGHT - 50) // 32
     num2 = WIDTH // 30
-    if 0 < player_x < 870:
-        if board[center_y //num1][center_x // num2] == 1:
-            board[center_y //num1][center_x // num2] = 0
-            score += 10
+    if 0 < player_x < 870: #if player on the board
+        if board[center_y //num1][center_x // num2] == 1: #if tile has a piece of food
+            board[center_y //num1][center_x // num2] = 0 #change tile to empty square
+            score += 10 #increase score by 10 each piece of food collected
     return score
 
 def draw_board():
@@ -91,7 +91,7 @@ def draw_player():
         screen.blit(pygame.transform.rotate(player_image, 270), (player_x, player_y)) #rotate pac man 270 degrees counterclockwise
 
 def check_position(center_x, center_y):
-    turns = [False, False, False, False]
+    turns = [False, False, False, False] #list of possible valid directions that the player can move in
     num1 = ((HEIGHT - 50)//32) 
     num2 = (WIDTH//30)
     num3 = 14
@@ -142,20 +142,20 @@ def check_position(center_x, center_y):
 
 def move_player(player_x, player_y):
     #r, l, u, d
-    if direction == 0 and valid_turns[0]:
+    if direction == 0 and valid_turns[0]: #if direction is right and valid turns is true at position 0, increase the player's center x value
         player_x += player_speed
-    elif direction == 1 and valid_turns[1]:
+    elif direction == 1 and valid_turns[1]: #if direction is left and valid turns is true at position 1, decrease the player's center x value
         player_x -= player_speed
-    elif direction == 2 and valid_turns[2]:
+    elif direction == 2 and valid_turns[2]: #if direction is up and valid turns is true at position 2, decrease the player's center y value
         player_y -= player_speed
-    elif direction == 3 and valid_turns[3]:
+    elif direction == 3 and valid_turns[3]: #if direction is down and valid turns is true at position 3, increase the player's center y value
         player_y += player_speed
     return player_x, player_y
 
 run = True
 while run:
     timer.tick(60) #how fast the game runs
-    if startup_counter < 180:
+    if startup_counter < 180: #have a 3 second time period without movement at the start
         moving = False
         startup_counter += 1
     else:
@@ -167,7 +167,7 @@ while run:
     center_x = player_x + 25
     center_y = player_y + 25
     valid_turns = check_position(center_x, center_y)
-    if moving:
+    if moving: #if moving is true move player
         player_x, player_y = move_player(player_x, player_y)
     score = check_collisions(score)
 
