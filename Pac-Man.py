@@ -1,7 +1,7 @@
 from board import board
 import pygame
 import math
-
+#comment
 pygame.init()
 
 WIDTH = 900
@@ -78,16 +78,8 @@ def draw_board():
             elif board[i][j] == 9:
                 pygame.draw.line(screen, 'white', (j * num2 , i * num1 + (0.5 * num2)), (j * num2 + num2, i * num1 + (0.5 * num1)), 3) #starting (x,y) is at side of tile, ending (x,y) is at same y but on the opposite side, thickness of 3
 
-<<<<<<< HEAD
-player_x = 450
-player_y = 660
-
-def draw_player():
-    player_image = (pygame.transform.scale(pygame.image.load(f'player_image.png'), (60, 60))) #load the player image and scale it to 45 by 45
-=======
 def draw_player():
     player_image = (pygame.transform.scale(pygame.image.load(f'player_image.png'), (50, 50))) #load the player image and scale it to 45 by 45
->>>>>>> b0cdc01d184f3f7821c8bf77982e83467da6e37c
     #RIGHT = 0, LEFT = 1, UP = 2, DOWN = 3
     if direction == 0:
         screen.blit(player_image, (player_x, player_y)) #starting position
@@ -171,14 +163,9 @@ while run:
     screen.fill('black')
     draw_board()
     draw_player()
-<<<<<<< HEAD
-    center_x = player_x + 30
-    center_y = player_y + 30
-=======
     draw_random()
     center_x = player_x + 25
     center_y = player_y + 25
->>>>>>> b0cdc01d184f3f7821c8bf77982e83467da6e37c
     valid_turns = check_position(center_x, center_y)
     if moving:
         player_x, player_y = move_player(player_x, player_y)
@@ -196,17 +183,6 @@ while run:
                 direction_command = 2
             if event.key == pygame.K_DOWN:
                 direction_command = 3
-<<<<<<< HEAD
-    if event.type == pygame.KEYUP:
-        if event.key == pygame.K_RIGHT and direction_command == 0:
-            direction_command = direction
-        if event.key == pygame.K_LEFT and direction_command == 1:
-            direction_command = direction
-        if event.key == pygame.K_UP and direction_command == 2:
-            direction_command = direction
-        if event.key == pygame.K_DOWN and direction_command == 3:
-            direction_command = direction
-=======
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT and direction_command == 0:
                 direction_command = direction
@@ -226,7 +202,6 @@ while run:
     if direction_command == 3 and valid_turns[3]:
         direction = 3
     
->>>>>>> b0cdc01d184f3f7821c8bf77982e83467da6e37c
     for i in range(4):
         if direction_command == i and valid_turns[i]:
             direction = i
