@@ -39,6 +39,76 @@ moving = False
 startup_counter = 0
 lives = 3
 
+class Ghost:
+    def __init__(self, x_coord, y_coord, target, speed, img, direct, box, id):
+        self.x_pos = x_coord
+        self.y_pos = y_coord
+        self.center_x = self.x_pos + 25
+        self.center_y = self.y_pos + 25
+        self.target = target
+        self.speed = speed
+        self.img = img
+        self.direct = direct
+        self.in_box = box
+        self.id = id
+        self.turns, self.in_box = self.check_collisions()
+        self.rect = self.draw()
+    
+    def draw(self):
+        while True:
+            screen.blit(self.img, (self.x_pos, self.y_pos))
+        ghost_rect = pygame.rect.Rect((self.center_x - 21, self.center_y - 21), (42, 42))
+        return ghost_rect
+    
+    def check_collisions(self):
+        #R, L, U, D
+        num1 = ((HEIGHT - 50) // 32)
+        num2 = (WIDTH // 30)
+        num3 = 14
+        self.turns = [False, False, False, False]
+        if self.center_x // 30 < 29:
+            if board[self.center_y // num1][(self.center_x - num3) // num2] < 3 or board[self.center_y // num1][(self.center_x - num3) // num2] == 9 and (self.in_box):
+                self.turns[1] = True
+            if board[self.center_y // num1][(self.center_x + num3) // num2] < 3 or board[self.center_y // num1][(self.center_x + num3) // num2] == 9 and (self.in_box):
+                self.turns[0] = True
+            if board[(self.center_y + num3) // num1][self.center_x // num2] < 3 or board[(self.center_y + num3) // num1][self.center_x // num2] == 9 and (self.in_box):
+                self.turns[3] = True
+            if board[(self.center_y - num3) // num1][self.center_x // num2] < 3 or board[(self.center_y - num3) // num1][self.center_x // num2] == 9 and (self.in_box):
+                self.turns[2] = True
+            
+            if self.direct == 2 or self.direct == 3:
+                if 12 <= self.center_x % num2 <= 18:
+                    if board[(self.center_y + num3) // num1][self.center_x // num2] < 3 or board[(self.center_y + num3) // num1][self.center_x // num2] == 9 and (self.in_box):
+                        self.turns[3] = True
+                    if board[(self.center_y - num3) // num1][self.center_x // num2] < 3 or board[(self.center_y - num3) // num1][self.center_x // num2] == 9 and (self.in_box):
+                        self.turns[2] = True
+                if 12 <= self.center_y % num1 <= 18:
+                    if board[self.center_y // num1][(self.center_x - num2) // num2] < 3 or board[self.center_y // num1][(self.center_x - num2) // num2] == 9 and (self.in_box):
+                        self.turns[1] = True
+                    if board[self.center_y // num1][(self.center_x + num2) // num2] < 3 or board[self.center_y // num1][(self.center_x + num2)// num2] == 9 and (self.in_box):
+                        self.turns[0] = True
+            
+            if self.direct == 0 or self.direct == 1:
+                if 12 <= self.center_x % num2 <= 18:
+                    if board[(self.center_y + num3) // num1][self.center_x // num2] < 3 or board[(self.center_y + num3) // num1][self.center_x // num2] == 9 and (self.in_box):
+                        self.turns[3] = True
+                    if board[(self.center_y - num3) // num1][self.center_x // num2] < 3 or board[(self.center_y - num3) // num1][self.center_x // num2] == 9 and (self.in_box):
+                        self.turns[2] = True
+                if 12 <= self.center_y % num1 <= 18:
+                    if board[self.center_y // num1][(self.center_x - num3) // num2] < 3 or board[self.center_y // num1][(self.center_x - num3) // num2] == 9 and (self.in_box):
+                        self.turns[1] = True
+                    if board[self.center_y // num1][(self.center_x + num3) // num2] < 3 or board[self.center_y // num1][(self.center_x + num3)// num2] == 9 and (self.in_box):
+                        self.turns[0] = True
+        else:
+            self.turns[0] = True
+            self.turns[1] = True
+        if 350 < self.x_pos < 550 and 370 < self.y_pos < 490:
+            self.in_bos = True
+        else: 
+            self.in_box = False
+
+        return self.turns, self.in_box
+
 def draw_random():
     score_text = font.render(f'Score: {score}', True, 'white')
     screen.blit(score_text, (10, 920)) #display the score
@@ -163,6 +233,9 @@ while run:
     screen.fill('black')
     draw_board()
     draw_player()
+    ghost1 = Ghost(ghost1_x, ghost1_y, ghost_targets[0], ghost_speed, ghost1_img, ghost1_direction, ghost1_box, 0)
+    ghost2 = Ghost(ghost2_x, ghost2_y, ghost_targets[1], ghost_speed, ghost2_img, ghost2_direction, ghost2_box, 1)
+    ghost3 = Ghost(ghost3_x, ghost3_y, ghost_targets[2], ghost_speed, ghost3_img, ghost3_direction, ghost3_box, 2)
     draw_random()
     center_x = player_x + 25
     center_y = player_y + 25
