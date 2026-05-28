@@ -57,8 +57,8 @@ class Ghost:
     def draw(self):
         while True:
             screen.blit(self.img, (self.x_pos, self.y_pos))
-        ghost_rect = pygame.rect.Rect((self.center_x - 21, self.center_y - 21), (42, 42))
-        return ghost_rect
+            ghost_rect = pygame.rect.Rect((self.center_x - 21, self.center_y - 21), (42, 42))
+            return ghost_rect
     
     def check_collisions(self):
         #R, L, U, D
@@ -103,10 +103,9 @@ class Ghost:
             self.turns[0] = True
             self.turns[1] = True
         if 350 < self.x_pos < 550 and 370 < self.y_pos < 490:
-            self.in_bos = True
+            self.in_box = True
         else: 
             self.in_box = False
-
         return self.turns, self.in_box
 
     def move_ghost3(self):
@@ -175,8 +174,8 @@ class Ghost:
                 else:
                     self.x_pos -= self.speed
         elif self.direct == 2:
-            if self.target[0] < self.x_pos and self.turns[0]:
-                self.direct = 0
+            if self.target[0] < self.x_pos and self.turns[1]:
+                self.direct = 1
                 self.x_pos -= self.speed
             elif self.target[1] < self.y_pos and self.turns[2]:
                 self.y_pos -= self.speed
@@ -209,12 +208,28 @@ class Ghost:
                 else:
                     self.y_pos -= self.speed
         elif self.direct == 3:
-            if self.target[0] < self.x_pos and self.turns[0]:
-                self.direct = 0
-                self.x_pos -= self.speed
-            elif self.target[1] < self.y_pos and self.turns[2]:
-                self.y_pos -= self.speed
-            elif not self.turns[2]:
+            if self.target[1] > self.y_pos and self.turns[3]:
+                self.y_pos += self.speed
+            elif not self.turns[3]:
+                if self.target[0] > self.x_pos and self.turns[0]:
+                    self.direct = 0
+                    self.x_pos += self.speed
+                elif self.target[0] < self.x_pos and self.turns[1]:
+                    self.direct = 1
+                    self.x_pos -= self.speed
+                if self.target[1] < self.y_pos and self.turns[2]:
+                    self.direct = 2
+                    self.y_pos -= self.speed
+                elif self.turns[2]:
+                    self.direct = 2
+                    self.y_pos -= self.speed
+                elif self.turns[1]:
+                    self.direct = 1
+                    self.x_pos -= self.speed
+                elif self.turns[0]:
+                    self.direct = 0
+                    self.x_pos += self.speed
+            elif self.turns[3]:
                 if self.target[0] > self.x_pos and self.turns[0]:
                     self.direct = 0
                     self.x_pos += self.speed
@@ -241,7 +256,12 @@ class Ghost:
                     self.direct = 1
                     self.x_pos -= self.speed
                 else:
-                    self.y_pos -= self.speed
+                    self.y_pos += self.speed
+        if self.x_pos < -30:
+            self.x_pos = 900
+        elif self.x_pos > 900:
+            self.x_pos - 30
+        return self.x_pos, self.y_pos, self.direct
 
 def draw_random():
     score_text = font.render(f'Score: {score}', True, 'white')
@@ -356,6 +376,22 @@ def move_player(player_x, player_y):
         player_y += player_speed
     return player_x, player_y
 
+def get_targets(ghost1_x, ghost1_y, ghost2_x, ghost2_y, ghost3_x, ghost3_y):
+    if 340 < ghost1_x < 560 and 340 < ghost1_y < 500:
+        ghost1_target = (400, 100)
+    else:
+        ghost1_target = (player_x, player_y)
+    if 340 < ghost2_x < 560 and 340 < ghost2_y < 500:
+        ghost2_target = (400, 100)
+    else:
+        ghost2_target = (player_x, player_y)
+    if 340 < ghost3_x < 560 and 340 < ghost3_y < 500:
+        ghost3_target = (400, 100)
+    else:
+        ghost3_target = (player_x, player_y)
+
+    return[ghost1_target, ghost2_target, ghost3_target]
+
 run = True
 while run:
     timer.tick(60) #how fast the game runs
@@ -371,11 +407,15 @@ while run:
     ghost2 = Ghost(ghost2_x, ghost2_y, ghost_targets[1], ghost_speed, ghost2_img, ghost2_direction, ghost2_box, 1)
     ghost3 = Ghost(ghost3_x, ghost3_y, ghost_targets[2], ghost_speed, ghost3_img, ghost3_direction, ghost3_box, 2)
     draw_random()
+    targets = get_targets(ghost1_x, ghost1_y, ghost2_x, ghost2_y, ghost3_x, ghost3_y)
     center_x = player_x + 25
     center_y = player_y + 25
     valid_turns = check_position(center_x, center_y)
     if moving: #if moving is true move player
         player_x, player_y = move_player(player_x, player_y)
+        ghost1_x, ghost1_y, ghost1_direction = ghost1.move_ghost3()
+        ghost2_x, ghost2_y, ghost2_direction = ghost2.move_ghost3()
+        ghost3_x, ghost3_y, ghost3_direction = ghost3.move_ghost3()
     score = check_collisions(score)
 
     for event in pygame.event.get():
