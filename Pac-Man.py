@@ -38,6 +38,8 @@ ghost_speed = 2
 moving = False
 startup_counter = 0
 lives = 3
+game_over = False
+game_won = False
 
 class Ghost:
     def __init__(self, x_coord, y_coord, target, speed, img, direct, box, id):
@@ -180,6 +182,7 @@ class Ghost:
                 self.direct = 1
                 self.x_pos -= self.speed
             elif self.target[1] < self.y_pos and self.turns[2]:
+                self.direct = 2
                 self.y_pos -= self.speed
             elif not self.turns[2]:
                 if self.target[0] > self.x_pos and self.turns[0]:
@@ -204,7 +207,7 @@ class Ghost:
                 if self.target[0] > self.x_pos and self.turns[0]:
                     self.direct = 0
                     self.x_pos += self.speed
-                if self.target[0] < self.x_pos and self.turns[1]:
+                elif self.target[0] < self.x_pos and self.turns[1]:
                     self.direct = 1
                     self.x_pos -= self.speed
                 else:
@@ -238,23 +241,23 @@ class Ghost:
                 elif self.target[0] < self.x_pos and self.turns[1]:
                     self.direct = 1
                     self.x_pos -= self.speed
-                elif self.target[1] > self.y_pos and self.turns[3]:
-                    self.direct = 3
-                    self.y_pos += self.speed
-                elif self.turns[3]:
-                    self.direct = 3
-                    self.y_pos += self.speed
+                elif self.target[1] < self.y_pos and self.turns[2]:
+                    self.direct = 2
+                    self.y_pos -= self.speed
+                elif self.turns[2]:
+                    self.direct = 2
+                    self.y_pos -= self.speed
                 elif self.turns[1]:
                     self.direct = 1
                     self.x_pos -= self.speed
                 elif self.turns[0]:
                     self.direct = 0
                     self.x_pos += self.speed
-            elif self.turns[2]:
+            elif self.turns[3]:
                 if self.target[0] > self.x_pos and self.turns[0]:
                     self.direct = 0
                     self.x_pos += self.speed
-                if self.target[0] < self.x_pos and self.turns[1]:
+                elif self.target[0] < self.x_pos and self.turns[1]:
                     self.direct = 1
                     self.x_pos -= self.speed
                 else:
@@ -270,6 +273,16 @@ def draw_random():
     screen.blit(score_text, (10, 920)) #display the score
     for i in range(lives): #place three small pacman in bottom right to count lives
         screen.blit(pygame.transform.scale(pygame.image.load(f'player_image.png'), (35, 35)), (650 + i * 40, 915))
+    if game_over:
+        pygame.draw.rect(screen, 'white', [50, 200, 800, 300], 0, 10)
+        pygame.draw.rect(screen, 'dark gray', [70, 220, 760, 260], 0, 10)
+        gameover_text = font.render('Game Over! Space bar to restart!', True, 'red')
+        screen.blit(gameover_text, (100, 300))
+    if game_won:
+        pygame.draw.rect(screen, 'white', [50, 200, 800, 300], 0, 10)
+        pygame.draw.rect(screen, 'dark gray', [70, 220, 760, 260], 0, 10)
+        gameover_text = font.render('Victory! Space bar to restart!', True, 'green')
+        screen.blit(gameover_text, (100, 300))
 
 def check_collisions(score):
     num1 = (HEIGHT - 50) // 32
@@ -397,7 +410,7 @@ def get_targets(ghost1_x, ghost1_y, ghost2_x, ghost2_y, ghost3_x, ghost3_y):
 run = True
 while run:
     timer.tick(60) #how fast the game runs
-    if startup_counter < 180: #have a 3 second time period without movement at the start
+    if startup_counter < 180 and not game_over and not game_won: #have a 3 second time period without movement at the start
         moving = False
         startup_counter += 1
     else:
@@ -438,6 +451,10 @@ while run:
             ghost3_x = 440
             ghost3_y = 438
             ghost3_direction = 2
+        else:
+            game_over = True
+            moving = False
+            startup_counter = 0
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT: #if you exit out the game
@@ -451,6 +468,26 @@ while run:
                 direction_command = 2
             if event.key == pygame.K_DOWN:
                 direction_command = 3
+            if event.key == pygame.K_SPACE and (game_over or game_won):
+                startup_counter = 0
+                player_x = 450
+                player_y = 663
+                direction = 0
+                direction_command = 0
+                ghost1_x = 56
+                ghost1_y = 58
+                ghost1_direction = 0
+                ghost2_x = 440
+                ghost2_y = 388
+                ghost2_direction = 2
+                ghost3_x = 440
+                ghost3_y = 438
+                ghost3_direction = 2
+                score = 0
+                lives = 3
+                game_over = False
+                game_won = False     
+
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT and direction_command == 0:
                 direction_command = direction
