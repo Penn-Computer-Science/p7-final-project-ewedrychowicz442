@@ -66,7 +66,9 @@ class Ghost:
         num2 = (WIDTH // 30)
         num3 = 14
         self.turns = [False, False, False, False]
-        if self.center_x // 30 < 29:
+        if 0 < self.center_x // 30 < 29:
+            if board[(self.center_y - num3) // num1][self.center_x // num2] == 9:
+                self.turns[2] = True
             if board[self.center_y // num1][(self.center_x - num3) // num2] < 3 or board[self.center_y // num1][(self.center_x - num3) // num2] == 9 and (self.in_box):
                 self.turns[1] = True
             if board[self.center_y // num1][(self.center_x + num3) // num2] < 3 or board[self.center_y // num1][(self.center_x + num3) // num2] == 9 and (self.in_box):
@@ -102,7 +104,7 @@ class Ghost:
         else:
             self.turns[0] = True
             self.turns[1] = True
-        if 350 < self.x_pos < 550 and 370 < self.y_pos < 490:
+        if 350 < self.x_pos < 550 and 370 < self.y_pos < 480:
             self.in_box = True
         else: 
             self.in_box = False
@@ -402,14 +404,15 @@ while run:
         moving = True
     screen.fill('black')
     draw_board()
+    center_x = player_x + 25
+    center_y = player_y + 25
+    player_circle = pygame.draw.circle(screen, 'black', (center_x, center_y), 22, 2)
     draw_player()
     ghost1 = Ghost(ghost1_x, ghost1_y, ghost_targets[0], ghost_speed, ghost1_img, ghost1_direction, ghost1_box, 0)
     ghost2 = Ghost(ghost2_x, ghost2_y, ghost_targets[1], ghost_speed, ghost2_img, ghost2_direction, ghost2_box, 1)
     ghost3 = Ghost(ghost3_x, ghost3_y, ghost_targets[2], ghost_speed, ghost3_img, ghost3_direction, ghost3_box, 2)
     draw_random()
     targets = get_targets(ghost1_x, ghost1_y, ghost2_x, ghost2_y, ghost3_x, ghost3_y)
-    center_x = player_x + 25
-    center_y = player_y + 25
     valid_turns = check_position(center_x, center_y)
     if moving: #if moving is true move player
         player_x, player_y = move_player(player_x, player_y)
@@ -417,6 +420,24 @@ while run:
         ghost2_x, ghost2_y, ghost2_direction = ghost2.move_ghost3()
         ghost3_x, ghost3_y, ghost3_direction = ghost3.move_ghost3()
     score = check_collisions(score)
+
+    if (player_circle.colliderect(ghost1.rect)) or (player_circle.colliderect(ghost2.rect)) or (player_circle.colliderect(ghost3.rect)):
+        if lives > 0:
+            lives -= 1
+            startup_counter = 0
+            player_x = 450
+            player_y = 663
+            direction = 0
+            direction_command = 0
+            ghost1_x = 56
+            ghost1_y = 58
+            ghost1_direction = 0
+            ghost2_x = 440
+            ghost2_y = 388
+            ghost2_direction = 2
+            ghost3_x = 440
+            ghost3_y = 438
+            ghost3_direction = 2
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT: #if you exit out the game
